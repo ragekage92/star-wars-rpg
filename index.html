@@ -17,8 +17,8 @@ html,body{margin:0;height:100%;background:var(--bg);overflow:hidden;font-family:
 <div id="bb" style="display:none;position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 10px);transform:translateX(-50%);width:240px;background:rgba(0,0,0,.6);border-radius:6px;padding:4px 6px;color:#fff;font-size:12px;text-align:center">Fallen Jedi - Trial Master<div style="height:8px;background:#400;margin-top:3px"><div id="bf" style="height:8px;background:#a3c;width:100%"></div></div></div>
 <div class="t" id="m" style="bottom:auto;top:calc(env(safe-area-inset-top,0px) + 140px);font-size:18px;font-weight:bold"></div>
 <div class="t">Move: WASD / Left stick · Look: drag mouse / Right stick · Jump: Space / A · Sprint: Shift / LT · Saber: F / X · Force push: E / Y · Saber throw: Q / LB · Lightning: Z / RT · Dash: V / B · Interact: R or Enter / RB</div>
-<script src="https://cloudflare.com"></script>
-<script src="https://unpkg.com"></script>
+<script src="./three.min.js"></script>
+<script src="./GLTFLoader.js"></script>
 <script>
 const S=new THREE.Scene();S.background=new THREE.Color(0xf3c98b);S.fog=new THREE.Fog(0xf3c98b,60,320);
 const cam=new THREE.PerspectiveCamera(60,innerWidth/innerHeight,.1,600);

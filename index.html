@@ -49,7 +49,7 @@ for(let i=0;i<18;i++){const a=i/18*6.283+.25*Math.sin(i*7),rad=26+(i*37%5)*6;bld
 bld(-20,18,8,6,true);label('Cantina',-20,17.5,18);
 // spaceport
 const pad=new THREE.Mesh(new THREE.CylinderGeometry(13,13,.4,32),M(0x555a60));pad.position.set(48,.2,-28);pad.receiveShadow=true;S.add(pad);
-const ship=new THREE.Group();[[8,2,5,0],[3,1,12,0]].forEach(a=>{const b=new THREE.Mesh(new THREE.BoxGeometry(a[0],a[1],a[2]),M(0xb8bcc2));b.position.y=2.2;b.castShadow=true;ship.add(b)});
+const ship=new THREE.Group();[new THREE.Vector3(8,2,5),new THREE.Vector3(3,1,12)].forEach(a=>{const b=new THREE.Mesh(new THREE.BoxGeometry(a.x,a.y,a.z),M(0xb8bcc2));b.position.y=2.2;b.castShadow=true;ship.add(b)});
 const cp=new THREE.Mesh(new THREE.SphereGeometry(1.4,12,8),M(0x7ab8e0));cp.position.set(0,3,-2);ship.add(cp);
 [-1,1].forEach(s=>{const e=new THREE.Mesh(new THREE.CylinderGeometry(.6,.6,1,12),new THREE.MeshBasicMaterial({color:0x66ccff}));e.rotation.x=1.57;e.position.set(s*2.5,2.2,6.2);ship.add(e)});
 ship.position.set(48,0,-28);S.add(ship);COL.push({x:48,z:-28,r:7});label('Spaceport',48,9,-28);
@@ -62,7 +62,7 @@ for(let i=0;i<14;i++){const a=R()*6.283,rad=190+R()*90,w=20+R()*30,h=25+R()*35,x
 // droids
 const droids=[];for(let i=0;i<5;i++){const d=new THREE.Group(),b=new THREE.Mesh(new THREE.CylinderGeometry(.35,.4,.8,10),M(0xddddd8)),h=new THREE.Mesh(new THREE.SphereGeometry(.35,10,8,0,6.283,0,1.57),M(0x3a6fc4));b.position.y=.5;h.position.y=.9;d.add(b,h);S.add(d);droids.push({d,cx:(R()-.5)*24,cz:(R()-.5)*24,s:.3+R()*.4,ph:R()*6})}
 // twin suns
-const suns=[[.55,.45,-.7,10,0xfff2b0],[.4,.38,-.8,7,0xffb060]].map(a=>{const m=new THREE.Mesh(new THREE.SphereGeometry(a[3],16,12),new THREE.MeshBasicMaterial({color:a[4],fog:false}));S.add(m);return{m,v:new THREE.Vector3(a[0],a[1],a[2]).normalize().multiplyScalar(420)}});
+const suns=[{x:.55,y:.45,z:-.7,r:10,c:0xfff2b0},{x:.4,y:.38,z:-.8,r:7,c:0xffb060}].map(a=>{const m=new THREE.Mesh(new THREE.SphereGeometry(a.r,16,12),new THREE.MeshBasicMaterial({color:a.c,fog:false}));S.add(m);return{m,v:new THREE.Vector3(a.x,a.y,a.z).normalize().multiplyScalar(420)}});
 // player
 const pl=new THREE.Group(),fallbackBody=new THREE.Group(),robe=new THREE.Mesh(new THREE.ConeGeometry(.7,1.6,12),M(0x5a4632)),head=new THREE.Mesh(new THREE.SphereGeometry(.3,12,10),M(0xd9a37a)),saber=new THREE.Mesh(new THREE.CylinderGeometry(.04,.04,1.2,8),new THREE.MeshBasicMaterial({color:0x66ccff}));
 robe.position.y=.8;head.position.y=1.8;saber.position.set(.55,1.2,.35);saber.rotation.x=.5;robe.castShadow=true;const hood=new THREE.Mesh(new THREE.SphereGeometry(.38,12,10,0,6.283,0,1.9),M(0x3a2c1e));hood.position.y=1.86;
@@ -84,9 +84,8 @@ new THREE.GLTFLoader().load('./player.glb',gltf=>{
  model.traverse(c=>{if(c.isMesh){c.castShadow=true;c.receiveShadow=true}});
  fallbackBody.visible=false;
  pl.add(model);
- if(gltf.animations&&gltf.animations.length){plMixer=new THREE.AnimationMixer(model);plMixer.clipAction(gltf.animations[0]).play()}
+ if(gltf.animations&&gltf.animations.length){plMixer=new THREE.AnimationMixer(model);plMixer.clipAction(gltf.animations.at(0)).play()}
 },undefined,err=>console.warn('player.glb load failed, using fallback:',err));
 const St={hp:100,xp:0,lv:1,k:0,cd:0,fc:0,sw:0,tt:0,inv:0,dash:0,sta:100,tc:0,lc:0},mhp=()=>100+10*(St.lv-1)+20*rob,EN=[],HD=document.getElementById('s'),MS=document.getElementById('m');
 let rings=[],pb=[];
-function hud(){HD.textContent='HP '+Math.ceil(St.hp)+'/'+mhp()+' · Lv '+St.lv+' · Kills '+St.k+' · Credits '+cr+' · Stamina '+Math.round(St.sta);const q=QS[qi];QD.textContent=!q?'All quests done':!qa?'Quest: talk to the Cantina bartender':q.t+' ('+Math.min(qc,q.n)+'/'+q.n+')'+(qc>=q.n?' - return to the bartender':'')}
-function say(t,d){MS.textContent=t;St.tt=d||3}
+function hud(){HD.textContent='HP '+Math.ceil(St.hp)+'/'+mhp()+' · Lv '+St.lv+' · Kills '+St.k+' · Credits '+cr+' · Stamina '+Math.round(St.sta);const q=QS.at(qi);QD.textContent=!q?'All quests done':!qa?'Quest: talk to the Cantina bartender':q.t+' ('+Math.min(qc,q.n)+'/'+q.n+')'+(qc>=q.n?' - return to the bartender':'')}

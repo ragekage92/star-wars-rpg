@@ -30,13 +30,11 @@ const sun=new THREE.DirectionalLight(0xfff0cc,.9);sun.castShadow=true;sun.shadow
 Object.assign(sun.shadow.camera,{left:-50,right:50,top:50,bottom:-50,near:1,far:300});S.add(sun,sun.target);
 let sd=5;const R=()=>(sd=sd*16807%2147483647)/2147483647;
 const H=(x,z)=>{const f=Math.min(1,Math.max(0,(Math.hypot(x,z)-70)/60));return f*(Math.sin(x*.02)*Math.cos(z*.025)*6+Math.sin(x*.06+z*.04)*1.5+Math.sin(z*.013)*5)};
-// terrain
 const G=new THREE.PlaneGeometry(700,700,160,160);G.rotateX(-Math.PI/2);
 const p=G.attributes.position,col=[];
 for(let i=0;i<p.count;i++){const x=p.getX(i),z=p.getZ(i);p.setY(i,H(x,z));const n=.9+.1*Math.sin(x*.3)*Math.cos(z*.3);col.push(.85*n,.68*n,.42*n)}
 G.setAttribute('color',new THREE.Float32BufferAttribute(col,3));G.computeVertexNormals();
 const T=new THREE.Mesh(G,new THREE.MeshLambertMaterial({vertexColors:true,map:tex(255,255,255,90,70)}));T.receiveShadow=true;S.add(T);
-// helpers
 const COL=[],M=c=>new THREE.MeshLambertMaterial({color:c}),sand=new THREE.MeshLambertMaterial({color:0xd9b98a,map:tex(255,255,255,70,3)}),dark=M(0x2a1a10);
 function label(t,x,y,z){const c=document.createElement('canvas');c.width=256;c.height=64;const g=c.getContext('2d');g.fillStyle='rgba(0,0,0,.55)';g.fillRect(0,0,256,64);g.fillStyle='#fff';g.font='bold 28px sans-serif';g.textAlign='center';g.fillText(t,128,42);
  const s=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),fog:false}));s.scale.set(10,2.5,1);s.position.set(x,y,z);S.add(s)}
@@ -44,26 +42,20 @@ function bld(x,z,r,h,dome){const g=new THREE.Group(),b=new THREE.Mesh(new THREE.
  if(dome){const d=new THREE.Mesh(new THREE.SphereGeometry(r,16,8,0,6.283,0,1.5708),sand);d.position.y=h;d.castShadow=true;g.add(d)}
  const o=new THREE.Mesh(new THREE.BoxGeometry(r*.4,h*.7,.3),dark);o.position.set(0,h*.35,r*1.02);g.add(o);
  g.position.set(x,0,z);g.rotation.y=Math.atan2(-x,-z);S.add(g);COL.push({x,z,r:r+.8})}
-// town
 for(let i=0;i<18;i++){const a=i/18*6.283+.25*Math.sin(i*7),rad=26+(i*37%5)*6;bld(Math.cos(a)*rad,Math.sin(a)*rad,3.5+(i*13%4),4+(i*7%3),i%3!=0)}
 bld(-20,18,8,6,true);label('Cantina',-20,17.5,18);
-// spaceport
 const pad=new THREE.Mesh(new THREE.CylinderGeometry(13,13,.4,32),M(0x555a60));pad.position.set(48,.2,-28);pad.receiveShadow=true;S.add(pad);
 const ship=new THREE.Group();[new THREE.Vector3(8,2,5),new THREE.Vector3(3,1,12)].forEach(a=>{const b=new THREE.Mesh(new THREE.BoxGeometry(a.x,a.y,a.z),M(0xb8bcc2));b.position.y=2.2;b.castShadow=true;ship.add(b)});
 const cp=new THREE.Mesh(new THREE.SphereGeometry(1.4,12,8),M(0x7ab8e0));cp.position.set(0,3,-2);ship.add(cp);
 [-1,1].forEach(s=>{const e=new THREE.Mesh(new THREE.CylinderGeometry(.6,.6,1,12),new THREE.MeshBasicMaterial({color:0x66ccff}));e.rotation.x=1.57;e.position.set(s*2.5,2.2,6.2);ship.add(e)});
 ship.position.set(48,0,-28);S.add(ship);COL.push({x:48,z:-28,r:7});label('Spaceport',48,9,-28);
-// vaporators, rocks, mesas
 for(let i=0;i<12;i++){const a=i*.55,rad=85+(i%4)*9,x=Math.cos(a)*rad,z=Math.sin(a)*rad,g=new THREE.Group(),m=new THREE.Mesh(new THREE.CylinderGeometry(.35,.5,6,8),M(0xaab0b6));m.position.y=3;m.castShadow=true;g.add(m);
  for(let k=0;k<3;k++){const f=new THREE.Mesh(new THREE.BoxGeometry(.2,2.4,1.4),M(0xcfd3d8));f.position.set(Math.cos(k*2.1)*.9,4,Math.sin(k*2.1)*.9);f.rotation.y=-k*2.1;g.add(f)}
  g.position.set(x,H(x,z),z);S.add(g);COL.push({x,z,r:1.2})}
 for(let i=0;i<70;i++){const a=R()*6.283,rad=75+R()*220,x=Math.cos(a)*rad,z=Math.sin(a)*rad,s=.8+R()*2.5,r=new THREE.Mesh(new THREE.DodecahedronGeometry(s),M(0x8a6a48));r.position.set(x,H(x,z)+s*.4,z);r.rotation.set(R()*3,R()*3,0);r.castShadow=true;S.add(r);if(s>1.8)COL.push({x,z,r:s})}
 for(let i=0;i<14;i++){const a=R()*6.283,rad=190+R()*90,w=20+R()*30,h=25+R()*35,x=Math.cos(a)*rad,z=Math.sin(a)*rad,m=new THREE.Mesh(new THREE.BoxGeometry(w,h,w*.8),M(0xa5663a));m.position.set(x,H(x,z)+h/2-3,z);m.rotation.y=R()*3;S.add(m)}
-// droids
 const droids=[];for(let i=0;i<5;i++){const d=new THREE.Group(),b=new THREE.Mesh(new THREE.CylinderGeometry(.35,.4,.8,10),M(0xddddd8)),h=new THREE.Mesh(new THREE.SphereGeometry(.35,10,8,0,6.283,0,1.57),M(0x3a6fc4));b.position.y=.5;h.position.y=.9;d.add(b,h);S.add(d);droids.push({d,cx:(R()-.5)*24,cz:(R()-.5)*24,s:.3+R()*.4,ph:R()*6})}
-// twin suns
 const suns=[{x:.55,y:.45,z:-.7,r:10,c:0xfff2b0},{x:.4,y:.38,z:-.8,r:7,c:0xffb060}].map(a=>{const m=new THREE.Mesh(new THREE.SphereGeometry(a.r,16,12),new THREE.MeshBasicMaterial({color:a.c,fog:false}));S.add(m);return{m,v:new THREE.Vector3(a.x,a.y,a.z).normalize().multiplyScalar(420)}});
-// player
 const pl=new THREE.Group(),fallbackBody=new THREE.Group(),robe=new THREE.Mesh(new THREE.ConeGeometry(.7,1.6,12),M(0x5a4632)),head=new THREE.Mesh(new THREE.SphereGeometry(.3,12,10),M(0xd9a37a)),saber=new THREE.Mesh(new THREE.CylinderGeometry(.04,.04,1.2,8),new THREE.MeshBasicMaterial({color:0x66ccff}));
 robe.position.y=.8;head.position.y=1.8;saber.position.set(.55,1.2,.35);saber.rotation.x=.5;robe.castShadow=true;const hood=new THREE.Mesh(new THREE.SphereGeometry(.38,12,10,0,6.283,0,1.9),M(0x3a2c1e));hood.position.y=1.86;
 const belt=new THREE.Mesh(new THREE.CylinderGeometry(.55,.55,.14,12),M(0x2a1a10));belt.position.y=1.0;
@@ -87,125 +79,9 @@ if(typeof THREE.GLTFLoader==='function'){
   pl.add(model);
   if(gltf.animations&&gltf.animations.length){plMixer=new THREE.AnimationMixer(model);plMixer.clipAction(gltf.animations.at(0)).play()}
  },undefined,err=>console.warn('player.glb load failed:',err));
-}else{console.warn('GLTFLoader did not load from CDN')}
+}
 const St={hp:100,xp:0,lv:1,k:0,cd:0,fc:0,sw:0,tt:0,inv:0,dash:0,sta:100,tc:0,lc:0},mhp=()=>100+10*(St.lv-1)+20*rob,EN=[],HD=document.getElementById('s'),MS=document.getElementById('m');
 let rings=[],pb=[];
 function hud(){HD.textContent='HP '+Math.ceil(St.hp)+'/'+mhp()+' · Lv '+St.lv+' · Kills '+St.k+' · Credits '+cr+' · Stamina '+Math.round(St.sta);const q=QS.at(qi);QD.textContent=!q?'All quests done':!qa?'Quest: talk to the Cantina bartender':q.t+' ('+Math.min(qc,q.n)+'/'+q.n+')'+(qc>=q.n?' - return to the bartender':'')}
 function say(t,d){MS.textContent=t;St.tt=d||3}
-function hit(e,dm,kn){e.hp-=dm;e.fl=.12;const dx=e.x-P.x,dz=e.z-P.z,d=Math.hypot(dx,dz)||1;e.kx=dx/dkn;e.kz=dz/dkn;
-if(e.hp<=0&&e.boss){bossWin(e);return}if(e.hp<=0){e.dead=1;e.rt=30;e.g.visible=false;St.k++;cr+=5+Math.floor(Math.random()6);if(qa&&QS.at(qi)&&!QS.at(qi).b)qc++;St.xp+=20;if(St.xp>=50St.lv){St.xp-=50St.lv;St.lv++;St.hp=mhp();say('Level '+St.lv+'!')}}}
-function swing(){if(shop||St.cd>0)return;St.cd=.45;St.sw=.3;const fx=Math.sin(P.f),fz=Math.cos(P.f);
-for(const e of EN){if(e.dead)continue;const dx=e.x-P.x,dz=e.z-P.z,d=Math.hypot(dx,dz)||1;if(d<3.6&&(dxfx+dzfz)/d>0)hit(e,14+3St.lv+4GR.cry,5)}}
-function push(){if(shop||St.fc>0)return;St.fc=2;const m=new THREE.Mesh(new THREE.RingGeometry(.8,1,32),new THREE.MeshBasicMaterial({color:0xa66cff,transparent:true,side:THREE.DoubleSide}));m.rotation.x=-1.57;m.position.set(P.x,P.y+.3,P.z);S.add(m);rings.push({m,t:0});
-for(const e of EN){if(!e.dead&&Math.hypot(e.x-P.x,e.z-P.z)<14)hit(e,10,16)}}
-function die(){St.hp=mhp();P.x=0;P.z=16;say('You were knocked out. You wake in Mos Eisley.')}
-function upd(dt){
-if(plMixer)plMixer.update(dt);
-St.cd-=dt;St.fc-=dt;St.sw-=dt;St.tt-=dt;St.inv-=dt;St.tc-=dt;St.lc-=dt;ebUpd(dt);thUpd(dt);if(St.tt<=0){const nt=near();MS.textContent=nt?'Press R / RB to '+nt:''}
-if(St.sw>0){saber.rotation.x=-1.2+2.4(1-St.sw/.3);saber.position.set(.55,1.2,.7)}else{saber.rotation.x=.5;saber.position.set(.55,1.2,.35)}
-for(const r of rings){r.t+=dt;const k=Math.min(1,r.t/.4);r.m.scale.setScalar(1+k13);r.m.material.opacity=.7(1-k);if(k>=1)S.remove(r.m)}
-rings=rings.filter(r=>r.t<.4);
-const town=ins||Math.hypot(P.x,P.z)<30;if(town)St.hp=Math.min(mhp(),St.hp+8dt);
-for(const e of EN){if(e.dead){e.rt-=dt;if(e.rt<=0){e.dead=0;e.hp=40;e.x=e.hx;e.z=e.hz;e.g.visible=true}continue}
-if(e.boss){bossAI(e,dt);continue}e.cd-=dt;e.fl-=dt;e.bm.color.setHex(e.fl>0?0xffffff:0x8a6a48);
-const dx=P.x-e.x,dz=P.z-e.z,d=Math.hypot(dx,dz)||1;
-if(e.kx||e.kz){e.x+=e.kxdt;e.z+=e.kzdt;e.kx=Math.pow(.05,dt);e.kz*=Math.pow(.05,dt);if(Math.abs(e.kx)+Math.abs(e.kz)<.5)e.kx=e.kz=0}
-else if(d<35&&!town){if(d>1.8){e.x+=dx/d4.5dt;e.z+=dz/d4.5dt}else if(e.cd<=0){if(St.inv<=0)St.hp-=Math.max(1,8-2GR.arm);e.cd=1.2;if(St.hp<=0)die()}}
-else{const hx=e.hx-e.x,hz=e.hz-e.z,hd=Math.hypot(hx,hz);if(hd>1){e.x+=hx/hd3dt;e.z+=hz/hd3dt}}
-e.g.position.set(e.x,H(e.x,e.z),e.z);e.g.rotation.y=Math.atan2(dx,dz)}
-hud()}
-[{x:110,z:60},{x:-150,z:120},{x:60,z:-170},{x:-120,z:-140}].forEach(c=>{const t=new THREE.Mesh(new THREE.ConeGeometry(4,5,8),M(0x6b4a2a));t.position.set(c.x,H(c.x,c.z)+2.5,c.z);t.castShadow=true;S.add(t);
-for(let i=0;i<3;i++){const x=c.x+(R()-.5)14,z=c.z+(R()-.5)14,g=new THREE.Group(),bm=new THREE.MeshLambertMaterial({color:0x8a6a48}),b=new THREE.Mesh(new THREE.CylinderGeometry(.4,.5,1.5,8),bm),h=new THREE.Mesh(new THREE.SphereGeometry(.32,10,8),M(0x777777));
-b.position.y=.8;h.position.y=1.8;const st=new THREE.Mesh(new THREE.CylinderGeometry(.05,.05,2.2,6),M(0x4a3a2a));st.position.set(.55,1.1,.1);const gg=new THREE.Mesh(new THREE.BoxGeometry(.5,.12,.1),M(0x111111));gg.position.set(0,1.85,.28);g.add(b,h,st,gg);S.add(g);EN.push({g,bm,x,z,hx:x,hz:z,hp:40,cd:0,fl:0,kx:0,kz:0,dead:0,rt:0})}});
-addEventListener('keydown',e=>{if(shop){shopKey(e);return}if(e.code=='KeyF')swing();if(e.code=='KeyE')push();if(e.code=='KeyR'||e.code=='Enter')use();if(e.code=='KeyQ')thr();if(e.code=='KeyZ')lgt();if(e.code=='KeyV')dash()});
-let ins=0,cr=0,qi=0,qa=0,qc=0;const QD=document.getElementById('q'),QS=[{t:'Defeat 3 raiders',n:3,r:50},{t:'Defeat 6 raiders',n:6,r:100},{t:'Defeat 10 raiders',n:10,r:200},{t:'Complete the Jedi Trial at the ruins',n:1,r:400,b:1}];
-const IN=new THREE.Group();IN.position.set(0,0,1000);S.add(IN);
-const fl=new THREE.Mesh(new THREE.BoxGeometry(22,.4,22),new THREE.MeshLambertMaterial({color:0x6a4a30,map:tex(255,255,255,110,6)}));fl.position.y=-.2;fl.receiveShadow=true;IN.add(fl);
-[{x:0,z:-11,w:22,d:.6},{x:0,z:11,w:22,d:.6},{x:-11,z:0,w:.6,d:22},{x:11,z:0,w:.6,d:22}].forEach(w=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w.w,6,w.d),sand);m.position.set(w.x,3,w.z);IN.add(m)});
-const roof=new THREE.Mesh(new THREE.BoxGeometry(22,.5,22),M(0x6a523a));roof.position.y=6.2;IN.add(roof);
-const bar=new THREE.Mesh(new THREE.BoxGeometry(10,1.2,1.4),M(0x7a5535));bar.position.set(0,.6,-6);IN.add(bar);
-const bt=new THREE.Group(),btb=new THREE.Mesh(new THREE.CylinderGeometry(.4,.5,1.5,8),M(0xb8863a)),bth=new THREE.Mesh(new THREE.SphereGeometry(.32,10,8),M(0xd9a37a));btb.position.y=.8;bth.position.y=1.8;bt.add(btb,bth);bt.position.set(0,0,-8);IN.add(bt);
-[{x:-6,z:0},{x:6,z:2},{x:-5,z:6}].forEach(t=>{const m=new THREE.Mesh(new THREE.CylinderGeometry(1.2,1.2,1,12),M(0x6a4a2a));m.position.set(t.x,.5,t.z);IN.add(m)});
-const ex=new THREE.Mesh(new THREE.BoxGeometry(3,4,.4),dark);ex.position.set(0,2,10.6);IN.add(ex);
-const l1=new THREE.PointLight(0xffaa55,1.2,30);l1.position.set(0,5,0);IN.add(l1);const l2=new THREE.PointLight(0x66aaff,.6,20);l2.position.set(6,4,5);IN.add(l2);
-label('Bartender',0,3.8,992);label('Exit',0,5,1010.3);
-function near(){if(ins){if(Math.hypot(P.x,P.z-992)<6)return'talk to the bartender';if(Math.hypot(P.x-8,P.z-993)<5)return'browse the shop';if(P.z>1008)return'leave';return''}if(bs==0&&Math.hypot(P.x-RX,P.z-RZ)<6)return'begin the Jedi Trial';return Math.hypot(P.x+13.9,P.z-12.5)<4.5?'enter the Cantina':''}
-function enter(){ins=1;P.x=0;P.z=1005;P.f=3.14;S.background.setHex(0x1a1208);S.fog.color.setHex(0x1a1208);hemi.intensity=.45;sun.intensity=0;say('Welcome to the Mos Eisley Cantina.')}
-function leave(){ins=0;P.x=-11.7;P.z=10.5;S.background.setHex(0xf3c98b);S.fog.color.setHex(0xf3c98b);hemi.intensity=.75;sun.intensity=.9}
-function talk(){const q=QS.at(qi);if(!q){say('Bartender: You have cleared the desert, hero.',5);return}
-if(!qa){qa=1;qc=0;say('Bartender: '+q.t+'. Pay is '+q.r+' credits.',5)}else if(qc>=q.n){cr+=q.r;say('Reward: '+q.r+' credits. May the Force be with you.',5);qi++;qa=0}else say('Bartender: Still at it? '+q.t,4)}
-function use(){if(shop){closeShop();return}if(ins){if(Math.hypot(P.x,P.z-992)<6){talk();return}if(Math.hypot(P.x-8,P.z-993)<5){shop=1;sel=0;shopR();return}if(P.z>1008)leave();return}if(Math.hypot(P.x-RX,P.z-RZ)<6){trial();return}if(Math.hypot(P.x+13.9,P.z-12.5)<4.5)enter()}
-let shop=0,sel=0;const GR={cry:0,arm:0,bt:0},SH=[{n:'Kyber Crystal',k:'cry',c:80,d:'+4 saber damage per level'},{n:'Padded Armor',k:'arm',c:60,d:'-2 damage taken per level'},{n:'Speeder Boots',k:'bt',c:70,d:'+10% move speed per level'},{n:'Medpac',k:'med',c:20,d:'Restores full HP',u:1}];
-const price=s=>s.u?s.c:s.c(GR[s.k]+1);
-function shopR(){const el=document.getElementById('sh');el.style.display=shop?'block':'none';if(!shop)return;
-el.innerHTML='Trader · Credits '+cr+'
-
-'+SH.map((s,i)=>''+s.n+(s.u?'':' (Lv '+GR[s.k]+'/3)')+'
-'+s.d+' · '+(!s.u&&GR[s.k]>=3?'MAX':price(s)+' cr')+'').join('')+'
-Up/Down + Enter or A to buy · R or B to leave'}
-function buy(){const s=SH.at(sel);if(!s.u&&GR[s.k]>=3){say('Already maxed out.');return}const p=price(s);if(cr<p){say('Not enough credits.');return}cr-=p;if(s.k=='med')St.hp=mhp();else GR[s.k]++;say('Bought '+s.n+'.');shopR()}
-function shopMove(d){sel=(sel+d+SH.length)%SH.length;shopR()}
-function closeShop(){shop=0;shopR()}
-function shopKey(e){if(e.code=='ArrowUp')shopMove(-1);if(e.code=='ArrowDown')shopMove(1);if(e.code=='Enter')buy();if(e.code=='Escape'||e.code=='KeyR')closeShop()}
-const tr=new THREE.Group(),trb=new THREE.Mesh(new THREE.CylinderGeometry(.4,.5,1.5,8),M(0x4a8a5a)),trh=new THREE.Mesh(new THREE.SphereGeometry(.32,10,8),M(0x6aa84f));trb.position.y=.8;trh.position.y=1.8;tr.add(trb,trh);tr.position.set(8,0,-7);IN.add(tr);
-const crt=new THREE.Mesh(new THREE.BoxGeometry(1.4,1.2,1.4),M(0x7a5a3a));crt.position.set(9.5,.6,-8);IN.add(crt);label('Trader',8,3.8,993);
-let bs=0,rob=0;const EBL=[],RX=-60,RZ=-190,BF=document.getElementById('bf');
-for(let i=0;i<8;i++){const a=i/86.283,x=RX+Math.cos(a)9,z=RZ+Math.sin(a)9,h=i%3?7:3.5,pc=new THREE.Mesh(new THREE.CylinderGeometry(.8,.9,h,10),M(0x9aa0a8));pc.position.set(x,H(x,z)+h/2,z);pc.castShadow=true;S.add(pc);COL.push({x,z,r:1.3})}
-const alt=new THREE.Mesh(new THREE.BoxGeometry(3,1,3),M(0x7d848c));alt.position.set(RX,H(RX,RZ)+.5,RZ);S.add(alt);COL.push({x:RX,z:RZ,r:2.2});
-const kc=new THREE.Mesh(new THREE.OctahedronGeometry(.7),new THREE.MeshBasicMaterial({color:0x66ccff}));kc.position.set(RX,H(RX,RZ)+2,RZ);S.add(kc);label('Jedi Ruins',RX,H(RX,RZ)+10,RZ);
-function ebolt(x,z,dx,dz){const m=new THREE.Mesh(new THREE.SphereGeometry(.35,8,8),new THREE.MeshBasicMaterial({color:0xc66cff}));S.add(m);EBL.push({m,x,z,vx:dx14,vz:dz14,t:3})}
-function ebUpd(dt){for(let i=EBL.length-1;i>=0;i--){const b=EBL.at(i);b.x+=b.vxdt;b.z+=b.vzdt;b.t-=dt;b.m.position.set(b.x,H(b.x,b.z)+1.3,b.z);
-if(!ins&&Math.hypot(b.x-P.x,b.z-P.z)<1.2&&P.y-H(P.x,P.z)<2){if(St.inv<=0)St.hp-=Math.max(1,10-2GR.arm);b.t=0;if(St.hp<=0)die()}
-if(b.t<=0){S.remove(b.m);EBL.splice(i,1)}}}
-function trial(){if(bs==1){say('Defeat the Trial Master!');return}if(bs==2){say('The trial is complete. The Force is strong with you.',4);return}
-bs=1;const g=new THREE.Group(),bm=new THREE.MeshLambertMaterial({color:0x5a2a7a}),b=new THREE.Mesh(new THREE.ConeGeometry(1.1,2.8,12),bm),h=new THREE.Mesh(new THREE.SphereGeometry(.45,12,10),M(0xc9a37a)),sb=new THREE.Mesh(new THREE.CylinderGeometry(.06,.06,1.8,8),new THREE.MeshBasicMaterial({color:0xff3333}));
-b.position.y=1.4;h.position.y=3.1;sb.position.set(.9,1.8,.5);sb.rotation.x=.5;g.add(b,h,sb);S.add(g);
-EN.push({boss:1,g,bm,x:RX,z:RZ+7,hx:RX,hz:RZ,hp:300,mh:300,cd:0,fl:0,sh:2,kx:0,kz:0,dead:0});document.getElementById('bb').style.display='block';say('A Fallen Jedi rises. Face the Trial Master!',5)}
-function bossAI(e,dt){e.fl-=dt;e.cd-=dt;e.sh-=dt;e.bm.color.setHex(e.fl>0?0xffffff:0x5a2a7a);BF.style.width=(100Math.max(0,e.hp)/e.mh)+'%';
-const dx=P.x-e.x,dz=P.z-e.z,d=Math.hypot(dx,dz)||1,p2=e.hp<e.mh/2,safe=ins||Math.hypot(P.x,P.z)<30;
-if(!safe){const sp=p2?7.5:5.5;if(d>2.4){e.x+=dx/dspdt;e.z+=dz/dspdt}else if(e.cd<=0){if(St.inv<=0)St.hp-=Math.max(1,14-2GR.arm);e.cd=1.1;if(St.hp<=0)die()}
-if(e.sh<=0&&d<40&&d>4){e.sh=p2?1.8:3;const n=p2?5:3;for(let i=0;i<n;i++){const a=Math.atan2(dx,dz)+(i-(n-1)/2).25;ebolt(e.x,e.z,Math.sin(a),Math.cos(a))}}}
-else{const hx=e.hx-e.x,hz=e.hz-e.z,hd=Math.hypot(hx,hz);if(hd>1){e.x+=hx/hd4dt;e.z+=hz/hd4dt}e.hp=Math.min(e.mh,e.hp+20dt)}
-e.g.position.set(e.x,H(e.x,e.z),e.z);e.g.rotation.y=Math.atan2(dx,dz)}
-function bossWin(e){EN.splice(EN.indexOf(e),1);S.remove(e.g);document.getElementById('bb').style.display='none';bs=2;cr+=300;rob=1;St.xp+=100;
-while(St.xp>=50St.lv){St.xp-=50St.lv;St.lv++}St.hp=mhp();if(qa&&QS.at(qi)&&QS.at(qi).b)qc=1;
-for(const b of EBL)S.remove(b.m);EBL.length=0;say('Trial complete! +300 credits and Jedi Robes (+20 max HP).',6)}
-let TH=null;const FXL=[];
-function tex(r,g,b,v,rep){const c=document.createElement('canvas');c.width=c.height=128;const x=c.getContext('2d');x.fillStyle='rgb('+r+','+g+','+b+')';x.fillRect(0,0,128,128);
-for(let i=0;i<1800;i++){const k=(Math.random()-.5)v,w=k>0?255:0;x.fillStyle='rgba('+w+','+w+','+w+','+Math.abs(k)/255+')';x.fillRect(Math.random()128,Math.random()128,2,2)}
-const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(rep,rep);return t}
-function thr(){if(shop||ins||St.tc>0)return;St.tc=3;const m=new THREE.Group(),c=new THREE.Mesh(new THREE.CylinderGeometry(.06,.06,1.4,8),new THREE.MeshBasicMaterial({color:0x66ccff}));c.rotation.z=1.57;m.add(c);S.add(m);TH={m,t:0,hit:new Set(),fx:Math.sin(P.f),fz:Math.cos(P.f)}}
-function lgt(){if(shop||ins||St.lc>0)return;St.lc=2.5;const fx=Math.sin(P.f),fz=Math.cos(P.f);
-for(const e of [...EN]){if(e.dead)continue;const dx=e.x-P.x,dz=e.z-P.z,d=Math.hypot(dx,dz)||1;if(d<14&&(dxfx+dzfz)/d>.5){const ex=e.x,ez=e.z;hit(e,8+2St.lv,2);
-const l=new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(P.x,P.y+1.4,P.z),new THREE.Vector3(ex,P.y+1.2,ez)]),new THREE.LineBasicMaterial({color:0xcaa6ff}));S.add(l);FXL.push({l,t:.25})}}}
-function dash(){if(shop||ins||St.dash>0||St.sta<20)return;St.dash=.18;St.inv=.3;St.sta-=20}
-function thUpd(dt){if(TH){TH.t+=dt;if(TH.t>=1.2){S.remove(TH.m);TH=null}else{const d=12Math.sin(Math.PITH.t/1.2),x=P.x+TH.fxd,z=P.z+TH.fzd;TH.m.position.set(x,P.y+1.2,z);TH.m.rotation.y+=dt25;if(!TH.h2&&TH.t>.6){TH.h2=1;TH.hit.clear()}
-for(const e of [...EN]){if(!e.dead&&!TH.hit.has(e)&&Math.hypot(e.x-x,e.z-z)<2.2){TH.hit.add(e);hit(e,10+3St.lv+4GR.cry,3)}}}}
-for(let i=FXL.length-1;i>=0;i--){FXL.at(i).t-=dt;if(FXL.at(i).t<=0){S.remove(FXL.at(i).l);FXL.splice(i,1)}}}
-hud();
-// input
-const K={};addEventListener('keydown',e=>K[e.code]=1);addEventListener('keyup',e=>K[e.code]=0);
-let cy=0,cpch=.45,drag=0,lx=0,ly=0;const dom=ren.domElement;
-dom.onpointerdown=e=>{drag=1;lx=e.clientX;ly=e.clientY};addEventListener('pointerup',()=>drag=0);
-addEventListener('pointermove',e=>{if(!drag)return;cy-=(e.clientX-lx).006;cpch=Math.max(.1,Math.min(1.2,cpch+(e.clientY-ly).005));lx=e.clientX;ly=e.clientY});
-const P={x:0,z:16,y:0,vy:0,f:0};let last=performance.now();
-function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;
-let mx=(K.KeyD?1:0)-(K.KeyA?1:0),mz=(K.KeyW?1:0)-(K.KeyS?1:0),jump=K.Space,spr=K.ShiftLeft||K.ShiftRight;
-const gp=[...(navigator.getGamepads?navigator.getGamepads():[])].find(x=>x);
-if(gp){const dz=v=>Math.abs(v)<.2?0:v;mx+=dz(gp.axes.at(0)||0);mz-=dz(gp.axes.at(1)||0);cy-=dz(gp.axes.at(2)||0)2.5dt;cpch=Math.max(.1,Math.min(1.2,cpch+dz(gp.axes.at(3)||0)1.5dt));jump=jump||gp.buttons.at(0).pressed;spr=spr||gp.buttons.at(6).pressed||!!(gp.buttons.at(10)&&gp.buttons.at(10).pressed);const bb=gp.buttons.map(z=>z.pressed);if(bb.at(2)&&!pb.at(2))swing();if(bb.at(3)&&!pb.at(3))push();if(bb.at(5)&&!pb.at(5))use();if(!shop){if(bb.at(4)&&!pb.at(4))thr();if(bb.at(7)&&!pb.at(7))lgt();if(bb.at(1)&&!pb.at(1))dash()}if(shop){if(bb.at(12)&&!pb.at(12))shopMove(-1);if(bb.at(13)&&!pb.at(13))shopMove(1);if(bb.at(0)&&!pb.at(0))buy();if(bb.at(1)&&!pb.at(1))closeShop()}pb=bb}
-if(shop){mx=mz=0;jump=0}const m=Math.hypot(mx,mz),sprN=spr&&m>.05&&St.sta>0;if(sprN)St.sta-=25dt;else St.sta=Math.min(100,St.sta+15dt);
-if(m>.05){const k=Math.min(1,m),fx=-Math.sin(cy),fz=-Math.cos(cy),rx=Math.cos(cy),rz=-Math.sin(cy),dx=(fxmz+rxmx)/m,dz2=(fzmz+rzmx)/m,sp=(sprN?12:7)k(1+.1GR.bt);
-P.x+=dxspdt;P.z+=dz2spdt;const t=Math.atan2(dx,dz2);let d=t-P.f;d=Math.atan2(Math.sin(d),Math.cos(d));P.f+=dMath.min(1,dt10)}
-if(St.dash>0){P.x+=Math.sin(P.f)28dt;P.z+=Math.cos(P.f)28dt;St.dash-=dt}
-for(const c of COL){const dx=P.x-c.x,dz=P.z-c.z,d=Math.hypot(dx,dz);if(d<c.r+.5){P.x=c.x+dx/d*(c.r+.5);P.z=c.z+dz/d*(c.r+.5)}}
-const rr=Math.hypot(P.x,P.z);if(ins){P.x=Math.max(-10.5,Math.min(10.5,P.x));P.z=Math.max(989.5,Math.min(1010.5,P.z))}else if(rr>300){P.x*=300/rr;P.z*=300/rr}
-const gy=ins?0:H(P.x,P.z);if(P.y<=gy+.01&&jump&&P.vy<=0)P.vy=8;P.vy-=22dt;P.y+=P.vydt;if(P.y<gy){P.y=gy;P.vy=0}
-upd(dt);pl.position.set(P.x,P.y,P.z);pl.rotation.y=P.f;
-const cd=ins?5:9,tx=P.x,ty=P.y+1.6,tz=P.z;cam.position.set(tx+Math.sin(cy)*Math.cos(cpch)*cd,ty+Math.sin(cpch)*cd,tz+Math.cos(cy)Math.cos(cpch)cd);
-if(ins){cam.position.x=Math.max(-10.3,Math.min(10.3,cam.position.x));cam.position.z=Math.max(989.7,Math.min(1010.3,cam.position.z))}cam.position.y=Math.max(cam.position.y,(ins?0:H(cam.position.x,cam.position.z))+1);if(ins)cam.position.y=Math.min(cam.position.y,5.4);cam.lookAt(tx,ty,tz);
-sun.position.set(P.x+80,100,P.z+40);sun.target.position.set(P.x,0,P.z);
-for(const s of suns){s.m.visible=!ins;s.m.position.copy(cam.position).add(s.v)}
-const t=now/1000;for(const o of droids){o.d.position.set(o.cx+Math.cos(to.s+o.ph)8,0,o.cz+Math.sin(to.s1.3+o.ph)8);o.d.rotation.y=-to.s}
-document.getElementById('z').textContent=ins?'Mos Eisley Cantina':Math.hypot(P.x-RX,P.z-RZ)<40?'Jedi Ruins':rr<75?'Mos Eisley, Tatooine':'Dune Sea';
-ren.render(S,cam);requestAnimationFrame(loop)}
-requestAnimationFrame(loop);
+function hit(e,dm,kn){e.hp-=dm;e.fl=.12;const dx=e.x-P.x,dz=e.z-P.z,d=Math.hypot(dx,dz)||1;e.kx=dx/d*kn;e.kz=dz/d*kn;

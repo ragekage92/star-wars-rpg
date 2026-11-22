@@ -9,6 +9,8 @@
 html,body{margin:0;height:100%;background:var(--bg);overflow:hidden;font-family:system-ui,sans-serif}
 .h{position:fixed;left:12px;top:calc(env(safe-area-inset-top,0px) + 10px);background:var(--panel);color:var(--fg);padding:8px 12px;border-radius:8px;font-size:14px}
 .t{position:fixed;left:0;right:0;bottom:calc(env(safe-area-inset-bottom,0px) + 8px);text-align:center;color:var(--fg);font-size:12px;text-shadow:0 1px 3px #000}
+.h,.t,#sh,#bb{z-index:10}
+.h,.t,#bb{pointer-events:none}
 </style></head><body>
 <div class="h" id="z">Mos Eisley, Tatooine</div>
 <div class="h" id="s" style="top:calc(env(safe-area-inset-top,0px) + 52px)"></div>
@@ -25,7 +27,7 @@ let shop=0,sel=0,ins=0,cr=0,qi=0,qa=0,qc=0,bs=0,rob=0,TH=null;const FXL=[];
 const S=new THREE.Scene();S.background=new THREE.Color(0xf3c98b);S.fog=new THREE.Fog(0xf3c98b,60,320);
 const cam=new THREE.PerspectiveCamera(60,innerWidth/innerHeight,.1,600);
 const ren=new THREE.WebGLRenderer({antialias:true});ren.setSize(innerWidth,innerHeight);ren.setPixelRatio(Math.min(devicePixelRatio,2));ren.shadowMap.enabled=true;
-ren.domElement.style.cssText='position:fixed;inset:0;touch-action:none';document.body.appendChild(ren.domElement);
+ren.domElement.style.cssText='position:fixed;inset:0;z-index:0;touch-action:none';document.body.appendChild(ren.domElement);
 addEventListener('resize',()=>{cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix();ren.setSize(innerWidth,innerHeight)});
 const hemi=new THREE.HemisphereLight(0xffe0b0,0x8a6a3a,.75);S.add(hemi);
 const sun=new THREE.DirectionalLight(0xfff0cc,.9);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);
@@ -79,7 +81,7 @@ function loadPlayer(){
   m.scale.setScalar(k);b.setFromObject(m);const c=b.getCenter(new THREE.Vector3());m.position.set(-c.x,-b.min.y,-c.z);
   m.traverse(o=>{if(!o.isMesh)return;o.castShadow=true;o.frustumCulled=false;
    (Array.isArray(o.material)?o.material:[o.material]).forEach(mt=>{if(!mt)return;
-    if(!mt.map){if(mt.vertexColors)mt.vertexColors=false;if(mt.color)mt.color.setHex(0x6e5442)}
+    if(!mt.map){if(mt.vertexColors)mt.vertexColors=false;if(mt.color)mt.color.setHex(0x6e5442)}else{if(mt.color)mt.color.setRGB(1.8,1.6,1.4);if(mt.emissive){mt.emissive.setHex(0x6e5442);mt.emissiveIntensity=.55}}
     if('metalness' in mt){mt.metalness=0;mt.roughness=.85}
     mt.needsUpdate=true})});
   pl.children.forEach(x=>{if(x!==saber)x.visible=false});
@@ -141,7 +143,7 @@ function shopMove(d){sel=(sel+d+SH.length)%SH.length;shopR()}
 function closeShop(){shop=0;shopR()}
 function shopKey(e){if(e.code=='ArrowUp')shopMove(-1);if(e.code=='ArrowDown')shopMove(1);if(e.code=='Enter')buy();if(e.code=='Escape'||e.code=='KeyR')closeShop()}
 const tr=new THREE.Group(),trb=new THREE.Mesh(new THREE.CylinderGeometry(.4,.5,1.5,8),M(0x4a8a5a)),trh=new THREE.Mesh(new THREE.SphereGeometry(.32,10,8),M(0x6aa84f));trb.position.y=.8;trh.position.y=1.8;tr.add(trb,trh);tr.position.set(8,0,-7);IN.add(tr);
-const crt=new THREE.Mesh(new THREE.BoxGeometry(1.4,1.2,1.4),M(0x7a5a3a));crt.position.set(9.5,.6,-8);IN.add(crt);label('Trader',8,3.8,993);
+const crt=new THREE.Mesh(new THREE.BoxGeometry(1.4,1.2,1.4),M(0x7a5a3a));crt.position.set(9.5,.6,-8);IN.add(crt);label('Trader',8,5.4,993);
 const EBL=[],RX=-60,RZ=-190,BF=document.getElementById('bf');
 for(let i=0;i<8;i++){const a=i/8*6.283,x=RX+Math.cos(a)*9,z=RZ+Math.sin(a)*9,h=i%3?7:3.5,pc=new THREE.Mesh(new THREE.CylinderGeometry(.8,.9,h,10),M(0x9aa0a8));pc.position.set(x,H(x,z)+h/2,z);pc.castShadow=true;S.add(pc);COL.push({x,z,r:1.3})}
 const alt=new THREE.Mesh(new THREE.BoxGeometry(3,1,3),M(0x7d848c));alt.position.set(RX,H(RX,RZ)+.5,RZ);S.add(alt);COL.push({x:RX,z:RZ,r:2.2});

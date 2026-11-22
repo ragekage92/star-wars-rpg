@@ -18,7 +18,7 @@ html,body{margin:0;height:100%;background:var(--bg);overflow:hidden;font-family:
 <div class="t" id="m" style="bottom:auto;top:calc(env(safe-area-inset-top,0px) + 140px);font-size:18px;font-weight:bold"></div>
 <div class="t">Move: WASD / Left stick · Look: drag mouse / Right stick · Jump: Space / A · Sprint: Shift / LT · Saber: F / X · Force push: E / Y · Saber throw: Q / LB · Lightning: Z / RT · Dash: V / B · Interact: R or Enter / RB</div>
 <script src="https://cloudflare.com"></script>
-<script src="https://cloudflare.com"></script>
+<script src="https://unpkg.com"></script>
 <script>
 const S=new THREE.Scene();S.background=new THREE.Color(0xf3c98b);S.fog=new THREE.Fog(0xf3c98b,60,320);
 const cam=new THREE.PerspectiveCamera(60,innerWidth/innerHeight,.1,600);
@@ -71,21 +71,22 @@ const arm=x=>{const a=new THREE.Mesh(new THREE.CylinderGeometry(.1,.1,.8,8),M(0x
 const eyes=[-.1,.1].map(x=>{const e=new THREE.Mesh(new THREE.SphereGeometry(.04,6,6),M(0x111111));e.position.set(x,1.83,.28);return e});
 fallbackBody.add(robe,head,hood,belt,arm(.6),arm(-.6),...eyes);pl.add(fallbackBody,saber);S.add(pl);
 let plMixer=null;
-new THREE.GLTFLoader().load('./player.glb',gltf=>{
- const model=gltf.scene;
- const box=new THREE.Box3().setFromObject(model);
- const size=box.getSize(new THREE.Vector3());
- const maxDim=Math.max(size.x,size.y,size.z)||1;
- const sc=2.1/maxDim;
- model.scale.setScalar(sc);
- box.setFromObject(model);
- const center=box.getCenter(new THREE.Vector3());
- model.position.set(-center.x,-box.min.y,-center.z);
- model.traverse(c=>{if(c.isMesh){c.castShadow=true;c.receiveShadow=true}});
- fallbackBody.visible=false;
- pl.add(model);
- if(gltf.animations&&gltf.animations.length){plMixer=new THREE.AnimationMixer(model);plMixer.clipAction(gltf.animations.at(0)).play()}
-},undefined,err=>console.warn('player.glb load failed, using fallback:',err));
+if(typeof THREE.GLTFLoader==='function'){
+ new THREE.GLTFLoader().load('./player.glb',gltf=>{
+  const model=gltf.scene;
+  const box=new THREE.Box3().setFromObject(model);
+  const size=box.getSize(new THREE.Vector3());
+  const maxDim=Math.max(size.x,size.y,size.z)||1;
+  const sc=2.1/maxDim;
+  model.scale.setScalar(sc);
+  box.setFromObject(model);
+  const center=box.getCenter(new THREE.Vector3());
+  model.position.set(-center.x,-box.min.y,-center.z);
+  model.traverse(c=>{if(c.isMesh){c.castShadow=true;c.receiveShadow=true}});
+  fallbackBody.visible=false;
+  pl.add(model);
+  if(gltf.animations&&gltf.animations.length){plMixer=new THREE.AnimationMixer(model);plMixer.clipAction(gltf.animations.at(0)).play()}
+ },undefined,err=>console.warn('player.glb load failed:',err));
+}else{console.warn('GLTFLoader did not load from CDN')}
 const St={hp:100,xp:0,lv:1,k:0,cd:0,fc:0,sw:0,tt:0,inv:0,dash:0,sta:100,tc:0,lc:0},mhp=()=>100+10*(St.lv-1)+20*rob,EN=[],HD=document.getElementById('s'),MS=document.getElementById('m');
 let rings=[],pb=[];
-function hud(){HD.textContent='HP '+Math.ceil(St.hp)+'/'+mhp()+' · Lv '+St.lv+' · Kills '+St.k+' · Credits '+cr+' · Stamina '+Math.round(St.sta);const q=QS.at(qi);QD.textContent=!q?'All quests done':!qa?'Quest: talk to the Cantina bartender':q.t+' ('+Math.min(qc,q.n)+'/'+q.n+')'+(qc>=q.n?' - return to the bartender':'')}

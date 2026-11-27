@@ -1,4 +1,0 @@
-// ENEMIES: the four raider camps (raiders, lungers and gunners).
-[[110,60],[-150,120],[60,-170],[-120,-140]].forEach(c=>{const t=new THREE.Mesh(new THREE.ConeGeometry(4,5,8),M(0x6b4a2a));t.position.set(c[0],H(c[0],c[1])+2.5,c[1]);t.castShadow=true;S.add(t);
- for(let i=0;i<3;i++){const x=c[0]+(R()-.5)*14,z=c[1]+(R()-.5)*14,g=new THREE.Group(),bm=new THREE.MeshLambertMaterial({color:0x8a6a48}),b=new THREE.Mesh(new THREE.CylinderGeometry(.4,.5,1.5,8),bm),h=new THREE.Mesh(new THREE.SphereGeometry(.32,10,8),M(0x777777));
-  b.position.y=.8;h.position.y=1.8;const st=new THREE.Mesh(new THREE.CylinderGeometry(.05,.05,2.2,6),M(0x4a3a2a));st.position.set(.55,1.1,.1);const gg=new THREE.Mesh(new THREE.BoxGeometry(.5,.12,.1),M(0x111111));gg.position.set(0,1.85,.28);g.add(b,h,st,gg);S.add(g);EN.push({g,bm,x,z,hx:x,hz:z,hp:40,cd:0,fl:0,kx:0,kz:0,dead:0,rt:0,gun:i==2,ch:0,lc:2+Math.random()*3,fc:2,cx:0,cz:0})}});
